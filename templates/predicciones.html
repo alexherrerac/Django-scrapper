@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block main %}
+<!-- Modal -->
+<div class="modal fade" id="Model" tabindex="-1" role="dialog" aria-labelledby="ModelLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModelLabel">Resultados de prediccion</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5>Datos ingresados:</h5>
+                <div>Nombre: <span id="nom"></span></div>
+                <div>Universidad: <span id="uni"></span></div>
+                <div>Profesion: <span id="pro"></span></div>
+                <div>Ciudad: <span id="ciu"></span></div>
+                <h5 class="pt-3">Prediccion de cliente:</h5>
+                <div id="pred"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <a class="btn btn-primary" href="/visualizacion" role="button">Ver DB</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container pt-5">
+    <div class="row justify-content-md-center">
+        <div class="col-md-6">
+            <h1 class="text-center">Prediccion de clientes</h1><br>
+            <form action="" id="post-form" autocomplete="off">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" step="0.1" class="form-control" id="nombre" placeholder="" required>
+                </div>
+                <div class="form-group">
+                    <label for="universidad">Universidad</label>
+                    <input type="text" step="0.1" class="form-control" id="universidad" placeholder="" required>
+                </div>
+                <div class="form-group">
+                    <label for="profesion">Profesion</label>
+                    <input type="text" step="0.1" class="form-control" id="profesion" placeholder="" required>
+                </div>
+                <div class="form-group">
+                    <label for="ciudad">Ciudad</label>
+                    <input type="text" step="0.1" class="form-control" id="ciudad" placeholder="" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" value="Submit" class="btn btn-primary" data-toggle="modal" data-target="#Model">Enviar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).on('submit', '#post-form', function(e){
+        e.preventDefault();
+        $.ajax({
+            type:'POST',
+            url:'{% url "predict:procesar_prediccion" %}',
+            data:{
+                nombre:$('#nombre').val(),
+                universidad:$('#universidad').val(),
+                profesion:$('#profesion').val(),
+                ciudad:$('#ciudad').val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+                action: 'post'
+            },
+            success: function(json) {
+                document.forms["post-form"].reset();
+                document.getElementById("pred").innerHTML = json['cliente']
+                document.getElementById("nom").innerHTML = json['nombre']
+                document.getElementById("uni").innerHTML = json['universidad']
+                document.getElementById("pro").innerHTML = json['profesion']
+                document.getElementById("ciu").innerHTML = json['ciudad']
+            },
+            error : function(xhr,errmsg,err) {
+
+            }
+        });
+    })
+</script>
+
+{% endblock %}

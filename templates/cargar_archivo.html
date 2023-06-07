@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div id="main">
+    <div class="container mt-5">
+        <div class="text-center">
+            <h2>Cargar Archivo Externo</h2>
+            <h3 class="mt-5">Buscar informacion de nombres desde un archivo externo Excel o CSV</h3>
+        </div>
+        <div class="text-center m-5">
+            <h5>Para cargar archivos Excel, poner los nombres en la primer columna (A)</h5>
+            <h5>Para cargar archivos CSV, poner los nombres en una columna llamada 'Nombre'</h5>
+        </div>
+    </div>
+    <div class="container mt-5">
+        <div class="row justify-content-md-center">
+            <form method="POST" enctype="multipart/form-data" class="text-center">
+                {% csrf_token %}
+                <input type="file" class="" name="document" accept=".xlsx, .xls, .csv">
+                <button type="submit" class="btn btn-success">Realizar busqueda</button>
+                {% if respuesta %}
+                <h5 class="mt-4">{{ respuesta.formato }}</h5>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    {% if respuesta.respuesta %}
+    <div class="container mt-5">
+        <div class="row justify-content-start">
+            <a href="descargar_csv/" class="btn btn-success btn-sm">Descargar CSV</a>
+        </div>
+        <br>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Universidad</th>
+                    <th scope="col">Profesion</th>
+                    <th scope="col">Ciudad</th>
+                    <th scope="col">Prediccion</th>
+                    <!-- <th scope="col"></th> -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in respuesta.respuesta %}
+                <tr>
+                    <form action="" id="post-form">
+                        <td id="nombres">{{ item.0 }}</td>
+                        <td id="universidad">{{ item.1 }}</td>
+                        <td id="profesion">{{ item.2 }}</td>
+                        <td id="ciudad">{{ item.3 }}</td>
+                        <td id="cliente">{{ item.4 }}</td>
+                        <!-- <td>
+                            <button id="btn-cambio" type="submit" class="btn btn-info btn-sm">Cambiar Prediccion</button>
+                        </td> -->
+                    </form>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    
+</div>
+<script>
+    $(document).on('submit', '#post-form', function(e){
+        e.preventDefault();
+        valor = $('#cliente').text()
+        if(valor == "Si") {
+            cambio = "No"
+        } else if(valor == "No"){
+            cambio = "Si"
+        }
+        $.ajax({
+            type:'POST',
+            url:'{% url "scraper:guardar_cambio" %}',
+            data:{
+                nombres:$('#nombres').text(),
+                universidad:$('#universidad').text(),
+                profesion:$('#profesion').text(),
+                ciudad:$('#ciudad').text(),
+                cliente: cambio,
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+                action: 'post'
+            },
+            success: function(json) {
+                document.getElementById("btn-cambio").innerHTML = json['res']
+                document.getElementById("btn-cambio").disabled = true;
+                document.getElementById("cliente").innerHTML = cambio
+            },
+            error : function(xhr,errmsg,err) {
+
+            }
+        });
+    })
+</script>
+
+{% endblock %}

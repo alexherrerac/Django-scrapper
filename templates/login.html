@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">        
+    <title>Login</title>
+</head>
+
+<body>
+    <section class="vh-100" style="background-color: rgb(235, 235, 235)">
+        <div class="container py-5 h-80">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                    <div class="card shadow-2-strong" style="border-radius: .5 rem">
+                        <div class="card-body p-5 text-center">
+                            <h3 class="mb-4">Iniciar Sesion</h3>
+                            <form action="" method="POST">
+                                {% csrf_token %}
+                                <div class="form-outline mb-3">
+                                    {% if request.method == 'POST' %} 
+                                      {% if form.error_messages %}
+                                        <div class="alert alert-danger alert-dismissible" role="alert">
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                            <strong>Error: </strong> {{ form.get_invalid_login_error }}
+                                        </div>
+                                      {% endif %}
+                                    {% endif %}
+                                    <label class="form-label">Usuario</label>
+                                    {{ form.username }}
+                                </div>
+                                <div class="form-outline mb-3">
+                                    <label class="form-label">Contraseña</label>
+                                    {{ form.password }}
+                                </div>
+                                <button class="btn btn-primary btn-block" type="submit">
+                                    Ingresar
+                                </button>
+                                <hr class="my-4" />
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div id="main">
+    <div class="container mt-3">
+        <div class="row justify-content-start">
+            <a href="cargar_archivo/" class="btn btn-outline-dark btn-sm">Cargar archivo</a>
+        </div>
+    </div>
+    <div class="container mt-1">
+        <div class="row justify-content-md-center">
+            <div class="col-md-6 mt-5">
+                <h1 class="text-center titulo-buscar" style="color: #1618DE; font-size: 60px; letter-spacing: -3px;">Buscar persona</h1><br>
+                <form method="POST" id="post-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Nombre Completo" autocomplete="off" required>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" value="submit" class="btn btn-light">Buscar</button>
+                    </div>
+                    {% if resulta %}
+                    <div class="text-center mt-3">
+                        <h5>{{ resulta }}</h5>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+    {% if resultado %}
+    <div class="container mt-5">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Universidad</th>
+                    <th scope="col">Profesion</th>
+                    <th scope="col">Ciudad</th>
+                    <th scope="col">Prediccion</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in resultado %}
+                <form action="" id="post-forma">
+                    <tr>
+                        {% csrf_token %}
+                        <td><p id="nombres">{{ item.0 }}</p></td>
+                        <td><p id="universidad">{{ item.1 }}</p></td>
+                        <td><p id="profesion">{{ item.2}}</p></td>
+                        <td><p id="ciudad">{{ item.3 }}</p></td>
+                        <td><p id="cliente">{{ item.4 }}</p></td>
+                        <td>
+                            <button id="btn-cambio" type="submit" class="btn btn-info btn-sm">
+                                Cambiar Prediccion
+                            </button>
+                        </td>
+                    </tr>
+                </form>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    
+</div>
+<script>
+    $(document).on('submit', '#post-forma', function(e){
+        e.preventDefault();
+        valor = $('#cliente').text()
+        if(valor == "Si") {
+            cambio = "No"
+        } else if(valor == "No"){
+            cambio = "Si"
+        }
+        $.ajax({
+            type:'POST',
+            url:'{% url "scraper:guardar_cambio" %}',
+            data:{
+                nombres:$('#nombres').text(),
+                universidad:$('#universidad').text(),
+                profesion:$('#profesion').text(),
+                ciudad:$('#ciudad').text(),
+                cliente: cambio,
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+                action: 'post'
+            },
+            success: function(json) {
+                document.getElementById("btn-cambio").innerHTML = json['res']
+                document.getElementById("btn-cambio").disabled = true;
+                document.getElementById("cliente").innerHTML = cambio
+            },
+            error : function(xhr,errmsg,err) {
+
+            }
+        });
+    })
+</script>
+
+{% endblock %}
